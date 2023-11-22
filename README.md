@@ -1,6 +1,6 @@
 # Final project
 
-### Building the app container
+## Building the app container
 
 More docs are located [here](./build/README.md).
 
@@ -15,3 +15,11 @@ We've got the following requirements for the app:
 
 **TODO: Still unclear if it uses static port and static logs location**
 
+**TODO**
+
+- build terraform infrastructure
+- deploy application
+- build deployment pipeline
+- work on public domain
+- work on caching
+- work on monitoring
