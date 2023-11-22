@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  init-bingo:
+    image: bingo:1.0
+    command: prepare_db
+    volumes:
+      - "/home/vagrant/repos/ya-yy-fw/build/bingo-config.yml:/opt/bingo/config.yaml"
+    depends_on:
+      - db
+  bingo:
+    image: bingo:1.0
+    command: run_server
+    ports:
+      - "13526:13526"
+    volumes:
+      - "/home/vagrant/repos/ya-yy-fw/build/bingo-config.yml:/opt/bingo/config.yaml"
+      - "/var/logs/bingo:/opt/bongo/logs/c863ac3e8e"
+    depends_on:
+      - db
+      - init-bingo
