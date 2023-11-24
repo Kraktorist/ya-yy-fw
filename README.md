@@ -17,6 +17,7 @@ We've got the following requirements for the app:
 
 **TODO**
 
+- create nginx configuration
 - build terraform infrastructure
 - deploy application
 - build deployment pipeline
