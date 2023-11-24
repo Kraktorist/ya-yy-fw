@@ -22,9 +22,17 @@ services:
     command: run_server
     ports:
       - "13526:13526"
-    volumes:
-      - "/home/vagrant/repos/ya-yy-fw/build/bingo-config.yml:/opt/bingo/config.yaml"
-      - "/var/logs/bingo:/opt/bongo/logs/c863ac3e8e"
+    configs:
+      - source: bingo-config
+        target: /opt/bingo/config.yaml
+    # volumes:
+    #   # bingo logs if neccessary
+    #   - bingo-logs:/opt/bongo/logs/c863ac3e8e
     depends_on:
       - db
       - init-bingo
+configs:
+  bingo-config:
+    file: ./bingo-config.yml
+volumes:
+  bingo-logs:
