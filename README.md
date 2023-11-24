@@ -13,7 +13,11 @@ We've got the following requirements for the app:
 - postgres as a database (connections string is needed)
 - initial migration is required (seems like it should be run only once to populate the database)
 
-**TODO: Still unclear if it uses static port and static logs location**
+Known issues:
+
+- the app fails in a random way
+- the app writes too much logs
+- unclear if it uses static port and static logs location**
 
 **TODO**
 
