@@ -15,8 +15,9 @@ We've got the following requirements for the app:
 
 Known issues:
 
-- the app fails in a random way
-- the app writes too much logs
+- the app stops in a random way with success or fail exit code. 
+- two instances of the app stop in the same moment. 
+- the app writes too many logs
 - unclear if it uses static port and static logs location**
 
 **TODO**
