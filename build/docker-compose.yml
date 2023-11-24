@@ -18,8 +18,9 @@ services:
   init-bingo:
     image: bingo:1.0
     command: prepare_db
-    volumes:
-      - "/home/vagrant/repos/ya-yy-fw/build/bingo-config.yml:/opt/bingo/config.yaml"
+    configs:
+      - source: bingo-config
+        target: /opt/bingo/config.yaml
     depends_on:
       - db
   bingo1:
@@ -28,7 +29,7 @@ services:
     entrypoint:
       - /bin/sh
       - -c
-      - "sleep $(shuf -i30-60 -n1) && bingo run_server"
+      - "sleep $$(shuf -i30-60 -n1) && bingo run_server"
     ports:
       - "13526:13526"
     configs:
@@ -37,6 +38,14 @@ services:
     # volumes:
     #   # bingo logs if neccessary
     #   - bingo-logs:/opt/bongo/logs/c863ac3e8e
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 500M
     depends_on:
       init-bingo:
         condition: service_completed_successfully
@@ -52,6 +61,14 @@ services:
     # volumes:
     #   # bingo logs if neccessary
     #   - bingo-logs:/opt/bongo/logs/c863ac3e8e
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 500M
     depends_on:
       init-bingo:
         condition: service_completed_successfully
