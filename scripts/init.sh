@@ -68,10 +68,11 @@ yc iam key create \
   --service-account-name ${SERVICE_ACCOUNT} \
   --folder-name ${FOLDER} \
   --output ${KEY_FILE}
-YC_TOKEN=$(jq -r tostring ${KEY_FILE} | base64 -w 0)
-rm -rf ${KEY_FILE}
+  cat ${KEY_FILE}
+# YC_TOKEN=$(jq -r tostring ${KEY_FILE} | base64 -w 0)
+# rm -rf ${KEY_FILE}
 
 echo $(yellow "EXPORTED VALUES:")
-echo "YC_CLOUD_ID=$(yc config get cloud-id)"
-echo "YC_FOLDER_ID=$(yc config get folder-id)"
-echo "YC_TOKEN=${YC_TOKEN}"
+echo "export YC_CLOUD_ID=$(yc config get cloud-id)"
+echo "export YC_FOLDER_ID=$(yc config get folder-id)"
+echo "export YC_SERVICE_ACCOUNT_KEY_FILE=${KEY_FILE}"
