@@ -3,71 +3,79 @@ locals {
 }
 
 provider "yandex" {
-  service_account_key_file = "./tf_key.json"
-  folder_id                = local.config.folder_id
+  folder_id = local.config.folder_id
 }
 
 resource "yandex_vpc_network" "network" {
-    name = local.config.network.name
+  name = local.config.network.name
 }
 
-# resource "yandex_vpc_subnet" "network" {
-#   network_id     = yandex_vpc_network.network.id
-#   v4_cidr_blocks = ["10.5.0.0/24"]
-# }
+resource "yandex_vpc_subnet" "network" {
+  for_each = local.config.network.subnets
+  network_id     = yandex_vpc_network.network.id
+  name           = each.key
+  v4_cidr_blocks = each.value.v4_cidr_blocks
+  zone = each.value.zone
+}
 
-# resource "yandex_container_registry" "registry1" {
-#   name = "registry1"
-# }
+resource "yandex_container_registry" "registry" {
+  name = try(local.config.registry.name, "registry")
 
-# locals {
-#   folder_id = "<INSERT YOUR FOLDER ID>"
-#   service-accounts = toset([
-#     "catgpt-sa",
-#   ])
-#   catgpt-sa-roles = toset([
-#     "container-registry.images.puller",
-#     "monitoring.editor",
-#   ])
-# }
-# resource "yandex_iam_service_account" "service-accounts" {
-#   for_each = local.service-accounts
-#   name     = "${local.folder_id}-${each.key}"
-# }
-# resource "yandex_resourcemanager_folder_iam_member" "catgpt-roles" {
-#   for_each  = local.catgpt-sa-roles
-#   folder_id = local.folder_id
-#   member    = "serviceAccount:${yandex_iam_service_account.service-accounts["catgpt-sa"].id}"
-#   role      = each.key
-# }
+  labels = try(local.config.registry.labels, {})
 
-# data "yandex_compute_image" "coi" {
-#   family = "container-optimized-image"
-# }
-# resource "yandex_compute_instance" "catgpt-1" {
-#     platform_id        = "standard-v2"
-#     service_account_id = yandex_iam_service_account.service-accounts["catgpt-sa"].id
-#     resources {
-#       cores         = 2
-#       memory        = 1
-#       core_fraction = 5
-#     }
-#     scheduling_policy {
-#       preemptible = true
-#     }
-#     network_interface {
-#       subnet_id = "${yandex_vpc_subnet.network.id}"
-#       nat = true
-#     }
-#     boot_disk {
-#       initialize_params {
-#         type = "network-hdd"
-#         size = "30"
-#         image_id = data.yandex_compute_image.coi.id
-#       }
-#     }
-#     metadata = {
-#       docker-compose = file("${path.module}/docker-compose.yaml")
-#       ssh-keys  = "ubuntu:${file("~/.ssh/devops_training.pub")}"
-#     }
-# }
+}
+
+data "yandex_compute_image" "coi" {
+  family = try(local.config.instance_group.image_family, "container-optimized-image")
+}
+
+resource "yandex_iam_service_account" "ig-account" {
+  name     = local.config.instance_group.service_account
+}
+
+resource "yandex_compute_instance_group" "group" {
+  name                = local.config.instance_group.name
+  service_account_id  = yandex_iam_service_account.ig-account.id
+  instance_template {
+    platform_id = "standard-v2"
+    resources {
+      cores         = local.config.instance_group.resources.cores
+      memory        = local.config.instance_group.resources.memory
+      core_fraction = try(local.config.instance_group.resources.core_fraction, 5)
+    }
+    boot_disk {
+      initialize_params {
+        type = "network-hdd"
+        size = local.config.instance_group.resources.disk_size
+        image_id = data.yandex_compute_image.coi.id
+      }
+    }
+    network_interface {
+      subnet_ids = [ for v in yandex_vpc_subnet.network: v.id if local.config.instance_group.network.subnet == v.name ]
+      nat = local.config.instance_group.network.nat
+    }
+    metadata = {
+      foo      = "bar"
+      ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    }
+    network_settings {
+      type = "STANDARD"
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = local.config.instance_group.node_count
+    }
+  }
+
+  allocation_policy {
+    zones = local.config.instance_group.allocation_policy
+  }
+
+  deploy_policy {
+    max_unavailable = local.config.instance_group.deploy_policy.max_unavailable
+    max_expansion   = local.config.instance_group.deploy_policy.max_expansion
+  }
+}
+

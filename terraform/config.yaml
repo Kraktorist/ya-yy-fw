@@ -1,3 +1,28 @@
 folder_id: b1gla0rq0g8628fo9b0o
 network:
-  name: qamo-network
+  name: bingo-network
+  subnets: 
+    bingo-subnet:
+      v4_cidr_blocks: ["10.5.0.0/24"]
+      zone: ru-central1-a
+
+registry:
+  name: default
+  labels:
+    env: prod
+
+instance_group:
+  name: bingo
+  service_account: bingo-ig-sa
+  resources:
+    cores: 2
+    memory: 1 #Gb
+    disk_size: 30 #Gb
+  network:
+    subnet: bingo-subnet
+    nat: false
+  node_count: 2
+  allocation_policy: ["ru-central1-a"]
+  deploy_policy:
+    max_unavailable: 1
+    max_expansion: 1
