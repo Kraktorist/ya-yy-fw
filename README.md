@@ -24,6 +24,7 @@ Known issues:
 
 - create nginx configuration
 - build terraform infrastructure
+- deploy postgresql
 - deploy application
 - build deployment pipeline
 - work on public domain
