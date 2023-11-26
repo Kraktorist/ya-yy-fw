@@ -1,4 +1,5 @@
 binary/
+.key.json
 
 # Compiled files
 *.tfstate
