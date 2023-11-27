@@ -6,23 +6,63 @@ network:
       v4_cidr_blocks: ["10.5.0.0/24"]
       zone: ru-central1-a
 
-registry:
-  name: default
-  labels:
-    env: prod
+registries:
+  default:
+    labels:
+      env: prod
 
-instance_group:
-  name: bingo
-  service_account: bingo-ig-sa
-  resources:
-    cores: 2
-    memory: 1 #Gb
-    disk_size: 30 #Gb
-  network:
-    subnet: bingo-subnet
-    nat: false
-  node_count: 2
-  allocation_policy: ["ru-central1-a"]
-  deploy_policy:
-    max_unavailable: 1
-    max_expansion: 1
+service_accounts:
+  bingo-ig-sa:
+    roles: 
+      - editor # https://cloud.yandex.com/en/docs/compute/quickstart/ig
+      #  To be able to create, update, and delete group instances, assign the editor role to the service account. 
+
+instance_groups:
+  bingo:
+    service_account: bingo-ig-sa
+    resources:
+      cores: 2
+      memory: 1 #Gb
+      disk_size: 30 #Gb
+    network:
+      subnet: bingo-subnet
+      nat: true
+    metadata: 
+      # treated as a file path
+      docker-compose: 
+        file: ../build/test.yml
+      ssh-keys: 
+        username: ubuntu
+        file: ~/.ssh/id_rsa.pub
+    node_count: 2
+    allocation_policy: ["ru-central1-a"]
+    deploy_policy:
+      max_unavailable: 1
+      max_expansion: 1
+
+instances:
+  tower:
+    family_id: ubuntu-2204-lts
+    resources:
+      cores: 2
+      memory: 1 #Gb
+      disk_size: 30 #Gb
+    network:
+      subnet: bingo-subnet
+      nat: true
+    metadata: 
+      ssh-keys: 
+        username: ubuntu
+        file: ~/.ssh/id_rsa.pub
+  monitoring:
+    family_id: ubuntu-2204-lts
+    resources:
+      cores: 2
+      memory: 4 #Gb
+      disk_size: 100 #Gb
+    network:
+      subnet: bingo-subnet
+    metadata: 
+      ssh-keys: 
+        username: ubuntu
+        file: ~/.ssh/id_rsa.pub
