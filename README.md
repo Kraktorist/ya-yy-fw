@@ -20,6 +20,37 @@ Known issues:
 - the app writes too many logs
 - unclear if it uses static port and static logs location**
 
+## Building infrastructure
+
+Infra config is defined as `config.yml`. It includes the following entities:
+
+- tower (jumphost)
+- monitoring
+- postgresql
+- bingo node group
+
+To apply run
+
+```
+terraform apply
+
+```
+
+## Nodes provisioning
+
+Nodes provisioning works using ansible. Ansible can work through bastion/jumphost. Just define the variable
+
+```
+export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -q ubuntu@<BASTION_IP> -p 22"'
+```
+
+### Postgresql
+
+```
+sudo apt-get install acl
+ansible-playbook -i 158.160.125.112, -u ubuntu playbook.yml
+```
+
 **TODO**
 
 - create nginx configuration
