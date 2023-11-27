@@ -27,7 +27,7 @@ resource "yandex_container_registry" "registry" {
 }
 
 data "yandex_compute_image" "coi" {
-  for_each = local.config.instance_groups
+  for_each = try(local.config.instance_groups, {})
   family = try(each.value.image_family, "container-optimized-image")
 }
 
@@ -58,7 +58,7 @@ resource "yandex_resourcemanager_folder_iam_member" "ig-roles" {
 
 locals {
   metadata = {
-    for ig_name, instance_group in merge(local.config.instance_groups, local.config.instances):
+    for ig_name, instance_group in merge(try(local.config.instance_groups, {}), try(local.config.instances, {})):
       ig_name => {
         docker-compose = coalescelist([for key, entry in instance_group.metadata: file(entry.file) if key == "docker-compose"], [null])[0]
         ssh-keys = coalescelist([for key, entry in instance_group.metadata: "${entry.username}:${file(entry.file)}" if key == "ssh-keys"], [null])[0]
@@ -68,7 +68,7 @@ locals {
 
 
 resource "yandex_compute_instance_group" "group" {
-  for_each = local.config.instance_groups
+  for_each = try(local.config.instance_groups, {})
   name                = each.key
   service_account_id = [ for v in yandex_iam_service_account.service-account: v.id if each.value.service_account == v.name ][0]
   instance_template {
@@ -135,7 +135,7 @@ resource "yandex_compute_instance" "instance" {
 
     boot_disk {
       initialize_params {
-        type = try(each.value.resources.disk_type, "network-ssd")
+        type = try(each.value.resources.disk_type, "network-hdd")
         size = each.value.resources.disk_size
         image_id = data.yandex_compute_image.image[each.key].id
       }
