@@ -30,7 +30,7 @@ instance_groups:
     metadata: 
       # treated as a file path
       docker-compose: 
-        file: ../build/test.yml
+        file: ../build/prod-docker-compose.yml
       ssh-keys: 
         username: ubuntu
         file: ~/.ssh/id_rsa.pub
