@@ -19,6 +19,8 @@ service_accounts:
 
 instance_groups:
   bingo:
+    ansible_groups:
+      - bingo
     service_account: bingo-ig-sa
     resources:
       cores: 2
@@ -42,6 +44,8 @@ instance_groups:
 
 instances:
   tower:
+    ansible_groups:
+      - tower
     family_id: ubuntu-2204-lts
     resources:
       cores: 2
@@ -55,6 +59,9 @@ instances:
         username: ubuntu
         file: ~/.ssh/id_rsa.pub
   postgresql:
+    ansible_groups:
+      - postgresql
+      - db
     family_id: ubuntu-2204-lts
     resources:
       cores: 2
@@ -68,15 +75,17 @@ instances:
       ssh-keys: 
         username: ubuntu
         file: ~/.ssh/id_rsa.pub    
-  # monitoring:
-  #   family_id: ubuntu-2204-lts
-  #   resources:
-  #     cores: 2
-  #     memory: 4 #Gb
-  #     disk_size: 100 #Gb
-  #   network:
-  #     subnet: bingo-subnet
-  #   metadata: 
-  #     ssh-keys: 
-  #       username: ubuntu
-  #       file: ~/.ssh/id_rsa.pub
+  monitoring:
+    ansible_groups:
+      - monitoring
+    family_id: ubuntu-2204-lts
+    resources:
+      cores: 2
+      memory: 4 #Gb
+      disk_size: 100 #Gb
+    network:
+      subnet: bingo-subnet
+    metadata: 
+      ssh-keys: 
+        username: ubuntu
+        file: ~/.ssh/id_rsa.pub
