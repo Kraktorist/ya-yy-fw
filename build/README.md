@@ -1,7 +1,7 @@
 Here's docker build for the app
 
 ```
-docker build . -t bingo:1.0
+DOCKER_BUILDKIT=1 docker build . -t bingo:1.0
 ```
 
 ### Run instance
