@@ -48,7 +48,7 @@ if [ -z ${SERVICE_ACCOUNT} ]; then
   echo $(yellow "WARNING! Parameter --service-account is not set. Default value --service-account=${SERVICE_ACCOUNT} will be used.")
 fi
 if [ -z ${ROLE} ]; then
-  ROLE=editor
+  ROLE=admin
   echo $(yellow "WARNING! Parameter --role is not set. Default value --role=${ROLE} will be used.")
 fi
 
@@ -73,6 +73,7 @@ yc iam key create \
 # rm -rf ${KEY_FILE}
 
 echo $(yellow "EXPORTED VALUES:")
+echo "export YC_ZONE=ru-central1-a"
 echo "export YC_CLOUD_ID=$(yc config get cloud-id)"
 echo "export YC_FOLDER_ID=$(yc config get folder-id)"
 echo "export YC_SERVICE_ACCOUNT_KEY_FILE=${KEY_FILE}"
