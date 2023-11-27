@@ -41,6 +41,20 @@ instance_groups:
       max_expansion: 1
 
 instances:
+  postgresql:
+    family_id: ubuntu-2204-lts
+    resources:
+      cores: 2
+      memory: 4 #Gb
+      disk_size: 30 #Gb
+      disk_type: "network-ssd"
+    network:
+      subnet: bingo-subnet
+      nat: true
+    metadata: 
+      ssh-keys: 
+        username: ubuntu
+        file: ~/.ssh/id_rsa.pub    
   tower:
     family_id: ubuntu-2204-lts
     resources:

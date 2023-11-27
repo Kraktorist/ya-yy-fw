@@ -80,7 +80,7 @@ resource "yandex_compute_instance_group" "group" {
     }
     boot_disk {
       initialize_params {
-        type = "network-hdd"
+        type = try(each.value.resources.disk_type, "network-hdd")
         size = each.value.resources.disk_size
         image_id = data.yandex_compute_image.coi[each.key].id
       }
@@ -135,7 +135,7 @@ resource "yandex_compute_instance" "instance" {
 
     boot_disk {
       initialize_params {
-        type = "network-hdd"
+        type = try(each.value.resources.disk_type, "network-ssd")
         size = each.value.resources.disk_size
         image_id = data.yandex_compute_image.image[each.key].id
       }
