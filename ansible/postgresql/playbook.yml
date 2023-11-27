@@ -1,0 +1,16 @@
+---
+- hosts: 158.160.125.112
+  roles:
+    - role: anxs.postgresql
+      become: yes
+      vars:
+        # see https://github.com/ANXS/postgresql/issues/523
+        ansible_python_interpreter: "/usr/bin/python3"
+        postgresql_databases:
+          - name: bingo
+            owner: bingo
+        postgresql_users:
+          - name: bingo
+            pass: pass
+            encrypted: yes  # if password should be encrypted, postgresql >= 10 does only accepts encrypted passwords
+            state: "present"    # optional; one of 'present', 'absent'

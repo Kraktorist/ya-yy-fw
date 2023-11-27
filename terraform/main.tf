@@ -1,3 +1,4 @@
+# TODO define some defaults for locals
 locals {
   config = yamldecode(file("config.yaml"))
 }
