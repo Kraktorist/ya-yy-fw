@@ -38,10 +38,11 @@ terraform apply
 
 ## Nodes provisioning
 
-Nodes provisioning works using ansible. Ansible can work through bastion/jumphost. Just define the variable
+Nodes provisioning works using ansible. Ansible can work through bastion/jumphost. Just define the variable ANSIBLE_SSH_COMMON_ARGS and copy ssh key to the jumphost
 
 ```
 export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -q ubuntu@<BASTION_IP> -p 22"'
+scp ~/.ssh/id_rsa ubuntu@<BASTION_IP>:./.ssh/
 ```
 
 ### Postgresql
