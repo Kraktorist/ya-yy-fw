@@ -39,6 +39,6 @@ locals {
 }
 
 resource "local_file" "ansible_inventory" {
-  filename = "xxx.yaml"
+  filename = try(local.config.inventory_file,"inventory.yaml")
   content  = yamlencode(local.ansible_inventory)
 }

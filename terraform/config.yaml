@@ -1,4 +1,5 @@
 folder_id: b1gla0rq0g8628fo9b0o
+inventory_file: inventory.yaml
 network:
   name: bingo-network
   subnets: 
@@ -61,7 +62,6 @@ instances:
   postgresql:
     ansible_groups:
       - postgresql
-      - db
     family_id: ubuntu-2204-lts
     resources:
       cores: 2
@@ -75,17 +75,17 @@ instances:
       ssh-keys: 
         username: ubuntu
         file: ~/.ssh/id_rsa.pub    
-  monitoring:
-    ansible_groups:
-      - monitoring
-    family_id: ubuntu-2204-lts
-    resources:
-      cores: 2
-      memory: 4 #Gb
-      disk_size: 100 #Gb
-    network:
-      subnet: bingo-subnet
-    metadata: 
-      ssh-keys: 
-        username: ubuntu
-        file: ~/.ssh/id_rsa.pub
+  # monitoring:
+  #   ansible_groups:
+  #     - monitoring
+  #   family_id: ubuntu-2204-lts
+  #   resources:
+  #     cores: 2
+  #     memory: 4 #Gb
+  #     disk_size: 100 #Gb
+  #   network:
+  #     subnet: bingo-subnet
+  #   metadata: 
+  #     ssh-keys: 
+  #       username: ubuntu
+  #       file: ~/.ssh/id_rsa.pub

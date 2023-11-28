@@ -1,7 +1,7 @@
 # TODO define some defaults for locals
 # TODO split configuration to modules
 locals {
-  config = yamldecode(file("config.yaml"))
+  config = yamldecode(file(var.config))
 }
 
 provider "yandex" {
