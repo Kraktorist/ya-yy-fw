@@ -48,15 +48,13 @@ scp ~/.ssh/id_rsa ubuntu@<BASTION_IP>:./.ssh/
 ### Postgresql
 
 ```
-sudo apt-get install acl
-ansible-playbook -i 158.160.125.112, -u ubuntu playbook.yml
+ansible-playbook -i terraform/inventory.yaml -u ubuntu ansible/postgresql/playbook.yml
 ```
 
 **TODO**
 
 - create nginx configuration
 - build terraform infrastructure
-- deploy postgresql
 - deploy application
 - build deployment pipeline
 - work on public domain
