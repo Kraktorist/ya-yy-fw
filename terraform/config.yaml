@@ -28,7 +28,7 @@ instance_groups:
       disk_size: 30 #Gb
     network:
       subnet: bingo-subnet
-      nat: true
+      nat: false
     metadata: 
       # treated as a file path
       docker-compose: 
@@ -70,7 +70,7 @@ instances:
       disk_type: "network-hdd"
     network:
       subnet: bingo-subnet
-      nat: true
+      nat: false
     metadata: 
       ssh-keys: 
         username: ubuntu
