@@ -68,7 +68,6 @@ yc iam key create \
   --service-account-name ${SERVICE_ACCOUNT} \
   --folder-name ${FOLDER} \
   --output ${KEY_FILE}
-  cat ${KEY_FILE}
 # YC_TOKEN=$(jq -r tostring ${KEY_FILE} | base64 -w 0)
 # rm -rf ${KEY_FILE}
 
