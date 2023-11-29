@@ -7,10 +7,10 @@ network:
       v4_cidr_blocks: ["10.5.0.0/24"]
       zone: ru-central1-a
 
-registries:
-  default:
-    labels:
-      env: prod
+# registries:
+#   default:
+#     labels:
+#       env: prod
 
 service_accounts:
   bingo-ig-sa:
