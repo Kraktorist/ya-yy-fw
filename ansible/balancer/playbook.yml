@@ -4,11 +4,13 @@
     - role: nginxinc.nginx
       become: yes
   post_tasks:
-    - name: Create nginx bingo.conf
+    - name: Create nginx cache folder
       become: true
       file: 
-        path: /opt/bingo
+        path: /opt/nginx_cache
         state: directory
+        owner: nginx
+        group: nginx
     - name: Copy nginx bingo.conf
       become: true
       ansible.builtin.copy:
@@ -19,10 +21,19 @@
               server {{ hostvars[groups['bingo'][0]]['ansible_host'] }}:13526;
               server {{ hostvars[groups['bingo'][1]]['ansible_host'] }}:13526;
           }
-
+          proxy_cache_path /opt/nginx_cache levels=1:2 keys_zone=bingo:15m max_size=1G;
           server {
               listen 80;
-                  
+              location /long_dummy {
+                  proxy_pass http://bingo;
+                  proxy_cache bingo;
+                  proxy_cache_valid 1m;
+                  add_header X-Proxy-Cache $upstream_cache_status;
+                  proxy_set_header Host $http_host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
               location / {
                   proxy_pass http://bingo;
                   proxy_set_header Host $http_host;
@@ -31,3 +42,9 @@
                   proxy_set_header X-Forwarded-Proto $scheme;
               }
           }
+          
+    - name: Reload service nginx
+      become: true
+      ansible.builtin.systemd:
+        name: nginx.service
+        state: reloaded
