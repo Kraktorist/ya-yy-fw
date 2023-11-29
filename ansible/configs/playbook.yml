@@ -21,7 +21,3 @@
             db_name: {{ pg_dbname }}
             ssl_mode: disable
             use_closest_node: false  
-  vars:
-    pg_username: bingo
-    pg_dbname: bingo
-    pg_password: pass
