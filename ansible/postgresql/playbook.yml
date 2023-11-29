@@ -45,11 +45,45 @@
             owner: "{{ pg_username }}"
         postgresql_users:
           - name: "{{ pg_username }}"
-            # TODO secure the passwords
-            pass: pass
+            pass: "{{ pg_password }}"
             encrypted: yes  # if password should be encrypted, postgresql >= 10 does only accepts encrypted passwords
             state: "present"    # optional; one of 'present', 'absent'
 
   post_tasks:
     - name: Import bingo data
       ansible.builtin.command: bingo prepare_db
+    - name: Create index movies_year
+      postgresql_query:
+        db: "{{ pg_dbname }}"
+        login_host: localhost
+        login_user: "{{ pg_username }}"
+        login_password: "{{ pg_password }}"
+        query: CREATE INDEX IF NOT EXISTS movies_year ON movies(year);
+    - name: Create index movies_name
+      postgresql_query:
+        db: "{{ pg_dbname }}"
+        login_host: localhost
+        login_user: "{{ pg_username }}"
+        login_password: "{{ pg_password }}"
+        query: CREATE INDEX IF NOT EXISTS movies_name ON movies(name);
+    - name: Create index idx_customer_id
+      postgresql_query:
+        db: "{{ pg_dbname }}"
+        login_host: localhost
+        login_user: "{{ pg_username }}"
+        login_password: "{{ pg_password }}"
+        query: CREATE INDEX IF NOT EXISTS idx_customer_id ON customers(id);
+    - name: Create index idx_session_id
+      postgresql_query:
+        db: "{{ pg_dbname }}"
+        login_host: localhost
+        login_user: "{{ pg_username }}"
+        login_password: "{{ pg_password }}"
+        query: CREATE INDEX IF NOT EXISTS idx_session_id ON sessions(id);
+    - name: Create index idx_movie_id
+      postgresql_query:
+        db: "{{ pg_dbname }}"
+        login_host: localhost
+        login_user: "{{ pg_username }}"
+        login_password: "{{ pg_password }}"
+        query: CREATE INDEX IF NOT EXISTS idx_movie_id ON movies(id);
