@@ -34,7 +34,7 @@ Infra config is defined as `config.yml`. It includes the following entities:
 To apply run
 
 ```
-TF_VAR_env_folder=$(pwd)/envs/dev terraform -chdir=terraform plan
+TF_VAR_env_folder=$(pwd)/envs/dev terraform -chdir=terraform apply
 
 ```
 

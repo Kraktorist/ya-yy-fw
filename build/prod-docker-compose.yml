@@ -31,6 +31,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 configs:
   bingo-config:
-    file: /opt/bingo/bingo-config.yml
+    file: /opt/bingo/config.yaml
 volumes:
   bingo-logs:
