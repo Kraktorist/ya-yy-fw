@@ -53,6 +53,11 @@ user@host:~/$ terraform output -raw ANSIBLE_SSH_COMMON_ARGS
 export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -q ubuntu@158.160.107.13 -p 22"'
 ```
 
+if you need ssh
+```
+ssh -A -J ubuntu@158.160.107.13 ubuntu@cl1och88qht6th1t2bdt-emil.ru-central1.internal
+```
+
 ### Postgresql
 
 ```
