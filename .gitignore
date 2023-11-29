@@ -1,5 +1,6 @@
 binary/
 .key.json
+envs/*/inventory.yaml
 
 # Compiled files
 *.tfstate
