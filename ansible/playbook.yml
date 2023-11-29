@@ -18,3 +18,5 @@
     pg_dbname: bingo
     pg_password: pass
     bingo_source: https://storage.yandexcloud.net/final-homework/bingo
+- name: balancer provisioning
+  import_playbook: balancer/playbook.yml
