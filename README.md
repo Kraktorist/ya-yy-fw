@@ -70,11 +70,78 @@ ansible-playbook -i envs/dev/inventory.yaml ansible/playbook.yml
   - nginx
   - bingo
 
+### Regarding bingo healthcheck
+
+1. Added `HEALTHCHECK` to [Dockerfile](./build/Dockerfile)
+2. Found that docker and docker-compose don't kill unhealthy containers
+3. Added `autoheal` service to docker-compose which checks and restarts unhealthy containers
+
+NB: unsuccessfully tried to implement *active* healthcheck which would kill the process inside of container
+
+### Regarding database population
+
+1. Found the key in bingo help `bingo prepare_db`
+2. Run it as an ansible task
+
+### Regarding slow queries
+
+1. Added ssd disk for database location (got last 5GB from granted cloud)
+2. Reconfigured `shared_buffers` and `work_mem`
+3. Added indices on the database
+
+### Regarding /long_dummy
+
+1. Configured cache settings for nginx
+
+### Regarding http3
+
+1. Added domain bingo.qamo.ru
+2. Generated tls certificate
+3. Enabled https in nginx config
+4. configured quic in nginx config
+
+```bash
+user@host: fw$ docker run --rm ymuski/curl-http3 curl -kv --http3 https://bingo.qamo.ru/
+* processing: https://bingo.qamo.ru/
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 178.154.207.84:443...
+* Connected to bingo.qamo.ru (178.154.207.84) port 443
+* using HTTP/3
+* Using HTTP/3 Stream ID: 0
+> GET / HTTP/3
+> Host: bingo.qamo.ru
+> User-Agent: curl/8.2.1-DEV
+> Accept: */*
+> 
+< HTTP/3 200 
+< server: nginx/1.25.3
+< date: Wed, 29 Nov 2023 22:24:44 GMT
+< content-type: text/plain; charset=utf-8
+< content-length: 336
+< alt-svc: h3=":443"; ma=86400
+< 
+{ [336 bytes data]
+100   336  100   336    0     0   9500      0 --:--:-- --:--:-- --:--:--  9600
+* Connection #0 to host bingo.qamo.ru left intact
+Hi. Accept my congratulations. You were able to launch this app.
+In the text of the task, you were given a list of urls and requirements for their work.
+Get on with it. You can do it, you'll do it.
+--------------------------------------------------
+code:         ******************
+--------------------------------------------------
+
+```
+
+tail -f /var/log/nginx/access.log
+```
+xxx.xx.xx.xxx - - [29/Nov/2023:22:24:44 +0000] "GET / HTTP/3.0" 200 336 "-" "curl/8.2.1-DEV" "-"
+```
+
+
 **TODO**
 
-- create nginx configuration
-- deploy application
+
+- add env variable to ansible
 - build deployment pipeline
-- work on public domain
-- work on caching
 - work on monitoring
