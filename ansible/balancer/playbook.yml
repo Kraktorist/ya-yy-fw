@@ -2,7 +2,7 @@
 - hosts: balancer
   roles:
     - role: nginxinc.nginx
-      become: yes
+      become: true
   post_tasks:
     - name: Create nginx cache folder
       become: true
