@@ -9,29 +9,9 @@
     - name: Install bingo
       become: true
       ansible.builtin.get_url:
-        url: https://storage.yandexcloud.net/final-homework/bingo
+        url: "{{ bingo_source }}"
         dest: /usr/bin/bingo
         mode: '755'
-    - name: Create bingo config dir
-      become: true
-      file: 
-        path: /opt/bingo
-        state: directory
-    - name: Copy bingo config
-      become: true
-      ansible.builtin.copy:
-        dest: /opt/bingo/config.yaml
-        content: |
-          student_email: qamo@yandex.ru
-          postgres_cluster:
-            hosts:
-            - address: localhost
-              port: 5432
-            user: bingo
-            password: pass
-            db_name: bingo
-            ssl_mode: disable
-            use_closest_node: false        
 
   roles:
     - role: anxs.postgresql
@@ -46,10 +26,10 @@
           - { type: host,  database: all, user: all, address: "10.5.0.0/24", method: "{{ postgresql_default_auth_method_hosts }}", comment: "IPv4 local connections:" }
           - { type: local, database: all, user: "{{ postgresql_admin_user }}", address: "", method: "peer map=root_as_{{ postgresql_admin_user }}", comment: "Local root Unix user, passwordless access" }
         postgresql_databases:
-          - name: bingo
-            owner: bingo
+          - name: "{{ pg_dbname }}"
+            owner: "{{ pg_username }}"
         postgresql_users:
-          - name: bingo
+          - name: "{{ pg_username }}"
             # TODO secure the passwords
             pass: pass
             encrypted: yes  # if password should be encrypted, postgresql >= 10 does only accepts encrypted passwords

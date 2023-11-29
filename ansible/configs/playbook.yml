@@ -1,0 +1,27 @@
+---
+- hosts: bingo,postgresql
+  tasks:
+    - name: Create bingo config dir
+      become: true
+      file: 
+        path: /opt/bingo
+        state: directory
+    - name: Copy bingo config
+      become: true
+      ansible.builtin.copy:
+        dest: /opt/bingo/config.yaml
+        content: |
+          student_email: qamo@yandex.ru
+          postgres_cluster:
+            hosts:
+            - address: {{ hostvars['postgresql'].ansible_host }}
+              port: 5432
+            user: {{ pg_username }}
+            password: {{ pg_password }}
+            db_name: {{ pg_dbname }}
+            ssl_mode: disable
+            use_closest_node: false  
+  vars:
+    pg_username: bingo
+    pg_dbname: bingo
+    pg_password: pass

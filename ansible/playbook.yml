@@ -1,0 +1,14 @@
+- name: configs upload
+  import_playbook: configs/playbook.yml
+  vars:
+    pg_username: bingo
+    pg_dbname: bingo
+    pg_password: pass
+    bingo_source: https://storage.yandexcloud.net/final-homework/bingo
+- name: postgresql provisioning
+  import_playbook: postgresql/playbook.yml
+  vars:
+    pg_username: bingo
+    pg_dbname: bingo
+    pg_password: pass
+    bingo_source: https://storage.yandexcloud.net/final-homework/bingo
