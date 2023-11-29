@@ -1,3 +1,9 @@
+# - hosts: bingo,postgresql
+#   tasks: 
+#     - import_tasks: configs/playbook.yml
+#   vars_files:
+#     -  "{{ lookup('ansible.builtin.env', 'env_folder', default=Undefined) }}/envs/dev/ansible.vars.yml"
+
 - name: configs upload
   import_playbook: configs/playbook.yml
   vars:
