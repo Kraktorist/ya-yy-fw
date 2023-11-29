@@ -11,6 +11,22 @@
         state: directory
         owner: nginx
         group: nginx
+    - name: Create nginx certs folder
+      become: true
+      file: 
+        path: /etc/nginx/certs
+        state: directory
+    - name: Copy nginx TLS key
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/nginx/certs/bingo.key
+        content: "{{ bingo_key }}"
+    - name: Copy nginx TLS certificate
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/nginx/certs/bingo.crt
+        content: "{{ bingo_cert }}"
+
     - name: Copy nginx bingo.conf
       become: true
       ansible.builtin.copy:
@@ -24,7 +40,14 @@
           proxy_cache_path /opt/nginx_cache levels=1:2 keys_zone=bingo:15m max_size=1G;
           server {
               listen 80;
+              listen 443 ssl;
+              listen 443 quic reuseport;
+
+              ssl_certificate     certs/bingo.crt;
+              ssl_certificate_key certs/bingo.key;
+
               location /long_dummy {
+                  add_header Alt-Svc 'h3=":443"; ma=86400';
                   proxy_pass http://bingo;
                   proxy_cache bingo;
                   proxy_cache_valid 1m;
@@ -35,6 +58,7 @@
                   proxy_set_header X-Forwarded-Proto $scheme;
               }
               location / {
+                  add_header Alt-Svc 'h3=":443"; ma=86400';
                   proxy_pass http://bingo;
                   proxy_set_header Host $http_host;
                   proxy_set_header X-Real-IP $remote_addr;
