@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   bingo:
-    image: bingo:1.0
+    image: kraktorist/bingo:1.0
     command: run_server
     ports:
       - "13526:13526"
@@ -20,17 +20,6 @@ services:
           cpus: '0.25'
           memory: 500M
     restart: on-failure
-  nginx:
-    image: nginx
-    ports:
-      - "8080:80"
-    configs:
-      - source: nginx-config
-        target: /etc/nginx/conf.d/default.conf
-    depends_on:
-      bingo:
-        condition: service_healthy
-    restart: always
   autoheal:
     image: willfarrell/autoheal:latest
     tty: true
@@ -42,8 +31,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 configs:
   bingo-config:
-    file: ./bingo-config.yml
-  nginx-config:
-    file: ./nginx-config.conf
+    file: /opt/bingo/bingo-config.yml
 volumes:
   bingo-logs:
