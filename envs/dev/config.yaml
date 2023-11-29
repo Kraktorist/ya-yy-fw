@@ -80,9 +80,11 @@ instances:
     family_id: ubuntu-2204-lts
     resources:
       cores: 2
-      memory: 4 #Gb
+      core_fraction: 50
+      memory: 8 #Gb
       disk_size: 30 #Gb
       disk_type: "network-hdd"
+      secondary_disk_size: 5
     network:
       subnet: bingo-subnet
       nat: false
