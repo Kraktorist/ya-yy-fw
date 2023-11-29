@@ -142,6 +142,7 @@ xxx.xx.xx.xxx - - [29/Nov/2023:22:24:44 +0000] "GET / HTTP/3.0" 200 336 "-" "cur
 **TODO**
 
 
-- add env variable to ansible
+- parametrize ansible playbooks
+- secure passwords
 - build deployment pipeline
 - work on monitoring
