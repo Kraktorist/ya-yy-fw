@@ -18,7 +18,8 @@ Known issues:
 - the app stops in a random way with success or fail exit code. 
 - two instances of the app stop in the same moment. 
 - the app writes too many logs
-- unclear if it uses static port and static logs location**
+- unclear if it uses static port and static logs location
+- unclear if it uses evnironment variables
 
 ## Building infrastructure
 
@@ -28,6 +29,7 @@ Infra config is defined as `config.yml`. It includes the following entities:
 - monitoring
 - postgresql
 - bingo node group
+- nginx reverse proxy
 
 To apply run
 
@@ -38,11 +40,17 @@ terraform apply
 
 ## Nodes provisioning
 
-Nodes provisioning works using ansible. Ansible can work through bastion/jumphost. Just define the variable ANSIBLE_SSH_COMMON_ARGS and copy ssh key to the jumphost
+Nodes provisioning works using ansible. Ansible can work through bastion as ssh proxy. Just define the variable ANSIBLE_SSH_COMMON_ARGS
 
 ```
 export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -q ubuntu@<BASTION_IP> -p 22"'
-scp ~/.ssh/id_rsa ubuntu@<BASTION_IP>:./.ssh/
+```
+
+The exact command is added to terraform output as a hint
+
+```bash
+user@host:~/$ terraform output -raw ANSIBLE_SSH_COMMON_ARGS
+export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -q ubuntu@158.160.107.13 -p 22"'
 ```
 
 ### Postgresql
@@ -51,10 +59,24 @@ scp ~/.ssh/id_rsa ubuntu@<BASTION_IP>:./.ssh/
 ansible-playbook -i terraform/inventory.yaml -u ubuntu ansible/postgresql/playbook.yml
 ```
 
+## Pipeline
+
+- create infrastructure with terraform
+  - bingo node groups
+  - postgresql host
+  - nginx host
+- create ansible inventory with terraform
+- generate required configs
+  - bingo config
+  - nginx configuration
+- provision hosts
+  - postgresql
+  - nginx
+  - bingo
+
 **TODO**
 
 - create nginx configuration
-- build terraform infrastructure
 - deploy application
 - build deployment pipeline
 - work on public domain

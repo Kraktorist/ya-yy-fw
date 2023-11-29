@@ -4,7 +4,11 @@ locals {
     for group in local.ansible_groups_for_instances :
     group => {
       hosts = { for key, entry in local.config.instances :
-        key => { ansible_host = yandex_compute_instance.instance[key].fqdn }
+        key => { 
+          ansible_host = yandex_compute_instance.instance[key].fqdn
+          nat_address = try(yandex_compute_instance.instance[key].network_interface[0].nat_ip_address, null)
+          ansible_user = entry.metadata.ssh-keys.username
+        }
       if contains(entry.ansible_groups, group) }
     }
   }
@@ -17,6 +21,8 @@ locals {
       v2.name => {
         group          = k1
         ansible_host             = v2.fqdn
+        nat_address = try(v2.network_interface[0].nat_ip_address,null)
+        ansible_user = local.config.instance_groups[k1].metadata.ssh-keys.username
         ansible_groups = local.config.instance_groups[k1].ansible_groups
       }
     }
@@ -27,7 +33,10 @@ locals {
     group => {
       hosts = {
         for key, entry in local.hosts :
-        key => { ansible_host = entry.ansible_host }
+        key => { 
+          ansible_host = entry.ansible_host 
+          ansible_user = entry.ansible_user  
+        }
 
         if contains(entry.ansible_groups, group)
       }

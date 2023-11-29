@@ -44,9 +44,9 @@ instance_groups:
       max_expansion: 1
 
 instances:
-  tower:
+  bastion:
     ansible_groups:
-      - tower
+      - bastion
     family_id: ubuntu-2204-lts
     resources:
       cores: 2
