@@ -36,7 +36,7 @@ resource "yandex_vpc_subnet" "network" {
 }
 
 resource "yandex_container_registry" "registry" {
-  for_each = local.config.registries
+  for_each = try(local.config.registries,{})
   name     = each.key
 
   labels = try(each.value.labels, {})
