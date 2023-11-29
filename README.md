@@ -40,28 +40,19 @@ TF_VAR_env_folder=$(pwd)/envs/dev terraform -chdir=terraform plan
 
 ## Nodes provisioning
 
-Nodes provisioning works using ansible. Ansible can work through bastion as ssh proxy. Just define the variable ANSIBLE_SSH_COMMON_ARGS
+Nodes provisioning works using ansible. Ansible can work through bastion as ssh proxy which is defined as env variable ANSIBLE_SSH_COMMON_ARGS. Value of this variable is exported as output of terraform and can be exported to the current session with bash `eval` command.
 
 ```
-export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -q ubuntu@<BASTION_IP> -p 22"'
-```
-
-The exact command is added to terraform output as a hint
-
-```bash
-user@host:~/$ terraform output -raw ANSIBLE_SSH_COMMON_ARGS
-export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -q ubuntu@158.160.107.13 -p 22"'
+eval $(terraform -chdir=terraform output -raw ANSIBLE_SSH_COMMON_ARGS)
 ```
 
 if you need ssh
 ```
-ssh -A -J ubuntu@158.160.107.13 ubuntu@cl1och88qht6th1t2bdt-emil.ru-central1.internal
+ssh -A -J <username>@<BASTION_IP> <username>@<target_host>
 ```
 
-### Postgresql
-
 ```
-ansible-playbook -i terraform/inventory.yaml -u ubuntu ansible/postgresql/playbook.yml
+ansible-playbook -i envs/dev/inventory.yaml ansible/playbook.yml
 ```
 
 ## Pipeline
