@@ -12,6 +12,19 @@
         url: "{{ bingo_source }}"
         dest: /usr/bin/bingo
         mode: '755'
+    - name: Create an xfs filesystem on SSD
+      become: true
+      community.general.filesystem:
+        fstype: xfs
+        dev: /dev/vdb
+    - name: Mount SSD
+      become: true
+      ansible.posix.mount:
+        path: /var/lib/postgresql
+        src: /dev/vdb
+        fstype: xfs
+        opts: defaults
+        state: mounted
 
   roles:
     - role: anxs.postgresql
@@ -19,6 +32,8 @@
       vars:
         # see https://github.com/ANXS/postgresql/issues/523
         ansible_python_interpreter: "/usr/bin/python3"
+        postgresql_shared_buffers: 4096MB
+        postgresql_work_mem: 128MB
         postgresql_listen_addresses: "*"
         postgresql_pg_hba_default:
           - { type: local, database: all, user: all, address: "",             method: "{{ postgresql_default_auth_method }}", comment: '"local" is for Unix domain socket connections only' }
