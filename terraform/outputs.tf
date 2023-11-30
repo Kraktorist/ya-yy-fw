@@ -6,6 +6,6 @@ output public_ips {
 }
 
 output ANSIBLE_SSH_COMMON_ARGS {
-  value       = try("export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand=\"ssh -W %h:%p -q ${local.ansible_inventory["bastion"].hosts["bastion"].ansible_user}@${local.ansible_inventory["bastion"].hosts["bastion"].nat_address} -p 22\"'",null)
+  value       = try("export ANSIBLE_SSH_COMMON_ARGS='-o StrictHostKeyChecking=no -o ProxyCommand=\"ssh -W %h:%p -q ${values(local.ansible_inventory["bastion"].hosts)[0].ansible_user}@${values(local.ansible_inventory["bastion"].hosts)[0].nat_address} -p 22\"'",null)
   description = "hint for ssh proxy variable ANSIBLE_SSH_COMMON_ARGS"
 }
