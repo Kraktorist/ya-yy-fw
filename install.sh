@@ -7,8 +7,8 @@ if [ -z ${ENV} ]; then
   exit 1
 fi
 
-if [ -z ${ACTION} ]; then
-  echo "ACTION is not defined"
+if ! [[ ${ACTION} =~ ^(apply|destroy)$ ]]; then
+  echo "ACTION is not valid. Should be 'apply' or 'destroy'"
   exit 1
 fi
 
