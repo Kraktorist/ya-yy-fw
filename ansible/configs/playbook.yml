@@ -14,7 +14,7 @@
           student_email: qamo@yandex.ru
           postgres_cluster:
             hosts:
-            - address: {{ hostvars['postgresql'].ansible_host }}
+            - address: {{ hostvars[groups['postgresql'][0]]['ansible_host'] }}
               port: 5432
             user: {{ pg_username }}
             password: {{ pg_password }}
@@ -36,8 +36,8 @@
       ansible.builtin.pip:
         name: docker
     - name: Restart bingo containers
-      community.docker.docker_container:
-        name: coi-bingo-1 #TODO fix hardcode
-        image: kraktorist/bingo:1.0
-        state: started
-        restart: true
+      ansible.builtin.command:
+        argv:
+          - docker
+          - restart
+          - coi-bingo-1 #TODO fix hardcoded value
