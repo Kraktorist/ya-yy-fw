@@ -60,7 +60,13 @@ openat(AT_FDCWD, "/opt/bongo/logs/c863ac3e8e/main.log", O_WRONLY|O_CREAT|O_APPEN
 ### Port bind
 
 ```
-ss -tnulp
+~ $ netstat -tunlp
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 127.0.0.11:42017        0.0.0.0:*               LISTEN      -
+tcp        0      0 :::13526                :::*                    LISTEN      1/bingo
+udp        0      0 127.0.0.11:39793        0.0.0.0:*                           -
+
 ```
 
 ### Non-root user
