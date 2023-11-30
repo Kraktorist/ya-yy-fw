@@ -92,17 +92,19 @@ instances:
       ssh-keys: 
         username: ubuntu
         file: ~/.ssh/id_rsa.pub    
-  # dev-monitoring:
-  #   ansible_groups:
-  #     - monitoring
-  #   family_id: ubuntu-2204-lts
-  #   resources:
-  #     cores: 2
-  #     memory: 4 #Gb
-  #     disk_size: 100 #Gb
-  #   network:
-  #     subnet: dev-bingo-subnet
-  #   metadata: 
-  #     ssh-keys: 
-  #       username: ubuntu
-  #       file: ~/.ssh/id_rsa.pub
+  dev-monitoring:
+    ansible_groups:
+      - monitoring
+    family_id: ubuntu-2204-lts
+    resources:
+      cores: 2
+      memory: 4 #Gb
+      disk_size: 30 #Gb
+    network:
+      subnet: dev-bingo-subnet
+    metadata: 
+      docker-compose: 
+        file: ../envs/dev/monitoring.yml #TODO think about it
+      ssh-keys: 
+        username: ubuntu
+        file: ~/.ssh/id_rsa.pub

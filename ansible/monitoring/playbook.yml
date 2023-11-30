@@ -1,0 +1,138 @@
+---
+- hosts: monitoring
+  tasks:
+    - name: Create config dir
+      become: true
+      file: 
+        path: /opt/monitoring
+        state: directory
+    - name: Create grafana datasources dir
+      become: true
+      file: 
+        path: /opt/monitoring/grafana/datasources
+        state: directory
+    - name: Create grafana dashboards dir
+      become: true
+      file: 
+        path: /opt/monitoring/grafana/dashboards
+        state: directory
+    - name: Copy grafana datasources
+      become: true
+      ansible.builtin.copy:
+        dest: /opt/monitoring/grafana/datasources/prometheus.yml
+        content: |
+          apiVersion: 1
+          deleteDatasources:
+            - name: Prometheus
+              orgId: 1
+          datasources:
+          - name: Prometheus
+            type: prometheus
+            access: proxy
+            orgId: 1
+            url: http://{{ hostvars[groups['monitoring'][0]]['ansible_host'] }}:9090
+            password:
+            user:
+            database:
+            basicAuth: false
+            basicAuthUser:
+            basicAuthPassword:
+            withCredentials:
+            isDefault: true
+            jsonData:
+              graphiteVersion: "1.1"
+              tlsAuth: false
+              tlsAuthWithCACert: false
+            secureJsonData:
+              tlsCACert: "..."
+              tlsClientCert: "..."
+              tlsClientKey: "..."
+            version: 1
+            editable: true   
+    - name: Copy grafana dashboards
+      become: true
+      ansible.builtin.copy:
+        dest: /opt/monitoring/grafana/
+        src: dashboards
+    - name: Copy grafana dashboard_files
+      become: true
+      ansible.builtin.copy:
+        dest: /opt/monitoring/grafana/
+        src: dashboard_files
+    - name: Create prometheus dir
+      become: true
+      file: 
+        path: /opt/monitoring/prometheus
+        state: directory
+    - name: Copy prometheus config
+      become: true
+      ansible.builtin.copy:
+        dest: /opt/monitoring/prometheus/prometheus.yml
+        content: |
+          global:
+            scrape_interval: 15s
+            scrape_timeout: 10s
+            evaluation_interval: 15s
+
+          scrape_configs:
+          - job_name: prometheus
+            honor_timestamps: true
+            scrape_interval: 15s
+            scrape_timeout: 10s
+            metrics_path: /metrics
+            scheme: http
+            follow_redirects: true
+            static_configs:
+            - targets:
+              - localhost:9090
+
+          - job_name: balancer
+            honor_timestamps: true
+            scrape_interval: 1s
+            scrape_timeout: 1s
+            metrics_path: /metrics
+            scheme: http
+            follow_redirects: true
+            static_configs:
+            - targets:
+              - {{ hostvars[groups['monitoring'][0]]['ansible_host'] }}:9113
+    - name: apt-get update
+      become: true
+      ansible.builtin.apt:
+        update_cache: yes
+    - name: Install prometheus-nginx-exporter
+      become: true
+      ansible.builtin.package:
+        name: prometheus-nginx-exporter
+        state: present
+    - name: Update prometheus-nginx-exporter config
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/default/prometheus-nginx-exporter
+        content: |
+          ARGS="-nginx.scrape-uri http://{{ hostvars[groups['balancer'][0]]['ansible_host'] }}:8080/status"
+    - name: Restart prometheus-nginx-exporter
+      become: true
+      ansible.builtin.systemd:
+        name: prometheus-nginx-exporter.service
+        state: restarted
+    - name: Install python3-pip
+      become: true
+      ansible.builtin.package:
+        name: python3-pip
+        state: present
+    - name: Install python package docker
+      ansible.builtin.pip:
+        name: docker
+    - name: Restart prometheus
+      ansible.builtin.command:
+        argv:
+          - docker
+          - restart
+          - prometheus
+    - name: Restart grafana
+      ansible.builtin.command:
+        argv:
+          - docker
+          - restart
+          - grafana

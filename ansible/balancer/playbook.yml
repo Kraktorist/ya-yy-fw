@@ -67,6 +67,35 @@
               }
           }
           
+    - name: Copy nginx monitoring.conf
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/nginx/conf.d/monitoring.conf
+        content: |
+          upstream grafana {
+              server {{ hostvars[groups['monitoring'][0]]['ansible_host'] }}:3000;
+          }
+          server {
+              listen 8080;
+              listen 8443 ssl;
+              listen 8443 quic reuseport;
+
+              ssl_certificate     certs/bingo.crt;
+              ssl_certificate_key certs/bingo.key;
+
+              location / {
+                  proxy_pass http://grafana;
+                  proxy_set_header Host $http_host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+              
+              location /status {
+                  stub_status;
+              }
+          }
+
     - name: Reload service nginx
       become: true
       ansible.builtin.systemd:
