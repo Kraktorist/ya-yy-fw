@@ -171,7 +171,39 @@ NB: unsuccessfully tried to implement *active* healthcheck which would kill the 
 1. Found the key in bingo help `bingo prepare_db`
 2. Run it as an ansible task
 
-### slow queries
+### slow queries /api/session
+
+This endpoint requests 100k rows joined from all the tables and by default it takes more than 30s to complete it.
+
+<details>
+<summary>slow query</summary>
+
+```
+SELECT 
+    sessions.id, 
+    sessions.start_time, 
+    customers.id, 
+    customers.name, 
+    customers.surname, 
+    customers.birthday, 
+    customers.email, 
+    movies.id, 
+    movies.name, 
+    movies.year, 
+    movies.duration 
+FROM sessions 
+    INNER JOIN customers ON sessions.customer_id = customers.id 
+    INNER JOIN movies ON sessions.movie_id = movies.id 
+ORDER BY movies.year DESC, 
+         movies.name ASC, 
+         customers.id, 
+         sessions.id DESC 
+LIMIT 100000;
+
+```
+</details>
+
+The following actions have been done to improve its performance^
 
 1. Added ssd disk for database location (got last 5GB from granted cloud)
 2. Reconfigured `shared_buffers` and `work_mem`
