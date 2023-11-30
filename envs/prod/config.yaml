@@ -1,11 +1,11 @@
 folder_id: b1gla0rq0g8628fo9b0o
 inventory_file: inventory.yaml
 network:
-  name: bingo-network
+  name: prod-bingo-network
   subnets: 
-    bingo-subnet:
-      v4_cidr_blocks: ["10.5.0.0/24"]
-      zone: ru-central1-a
+    prod-bingo-subnet:
+      v4_cidr_blocks: ["10.6.0.0/24"]
+      zone: ru-central1-b
 
 # registries:
 #   default:
@@ -13,22 +13,22 @@ network:
 #       env: prod
 
 service_accounts:
-  bingo-ig-sa:
+  bingo-ig-sa-prod:
     roles: 
       - editor # https://cloud.yandex.com/en/docs/compute/quickstart/ig
       #  To be able to create, update, and delete group instances, assign the editor role to the service account. 
 
 instance_groups:
-  bingo:
+  prod-bingo:
     ansible_groups:
       - bingo
-    service_account: bingo-ig-sa
+    service_account: bingo-ig-sa-prod
     resources:
       cores: 2
       memory: 1 #Gb
       disk_size: 30 #Gb
     network:
-      subnet: bingo-subnet
+      subnet: prod-bingo-subnet
       nat: false
     metadata: 
       # treated as a file path
@@ -38,13 +38,13 @@ instance_groups:
         username: ubuntu
         file: ~/.ssh/id_rsa.pub
     node_count: 2
-    allocation_policy: ["ru-central1-a"]
+    allocation_policy: ["ru-central1-b"]
     deploy_policy:
       max_unavailable: 1
       max_expansion: 1
 
 instances:
-  bastion:
+  prod-bastion:
     ansible_groups:
       - bastion
     family_id: ubuntu-2204-lts
@@ -53,13 +53,13 @@ instances:
       memory: 1 #Gb
       disk_size: 30 #Gb
     network:
-      subnet: bingo-subnet
+      subnet: prod-bingo-subnet
       nat: true
     metadata: 
       ssh-keys: 
         username: ubuntu
         file: ~/.ssh/id_rsa.pub
-  nginx:
+  prod-nginx:
     ansible_groups:
       - balancer
     family_id: ubuntu-2204-lts
@@ -68,23 +68,25 @@ instances:
       memory: 1 #Gb
       disk_size: 30 #Gb
     network:
-      subnet: bingo-subnet
+      subnet: prod-bingo-subnet
       nat: true
     metadata: 
       ssh-keys: 
         username: ubuntu
         file: ~/.ssh/id_rsa.pub
-  postgresql:
+  prod-postgresql:
     ansible_groups:
       - postgresql
     family_id: ubuntu-2204-lts
     resources:
       cores: 2
-      memory: 4 #Gb
+      core_fraction: 50
+      memory: 8 #Gb
       disk_size: 30 #Gb
       disk_type: "network-hdd"
+      secondary_disk_size: 2
     network:
-      subnet: bingo-subnet
+      subnet: prod-bingo-subnet
       nat: false
     metadata: 
       ssh-keys: 
@@ -99,7 +101,7 @@ instances:
   #     memory: 4 #Gb
   #     disk_size: 100 #Gb
   #   network:
-  #     subnet: bingo-subnet
+  #     subnet: prod-bingo-subnet
   #   metadata: 
   #     ssh-keys: 
   #       username: ubuntu
