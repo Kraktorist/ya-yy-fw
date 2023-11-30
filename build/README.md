@@ -14,7 +14,7 @@ docker run \
     -v ./build/bingo-config.yml:/opt/bingo/config.yaml \
     -v /var/logs/bingo:/opt/bongo/logs \
     --entrypoint=/bin/sh \
-    bingo:1.0
+    kraktorist/bingo:1.0
 ```
 
 ### Run docker compose

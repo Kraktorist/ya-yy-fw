@@ -1,8 +1,6 @@
 # Final project
 
-## Building the app container
-
-More docs are located [here](./build/README.md).
+## Bingo Application
 
 We've got the following requirements for the app:
 
@@ -13,7 +11,70 @@ We've got the following requirements for the app:
 - postgres as a database (connections string is needed)
 - initial migration is required (seems like it should be run only once to populate the database)
 
-Known issues:
+---
+
+<details>
+<summary>How to get these parameters</summary>
+
+### Parameters
+
+```
+> ./binary/bingo help    
+bingo
+
+Usage:
+   [flags]
+   [command]
+
+Available Commands:
+  completion           Generate the autocompletion script for the specified shell
+  help                 Help about any command
+  prepare_db           prepare_db
+  print_current_config print_current_config
+  print_default_config print_default_config
+  run_server           run_server
+  version              version
+
+Flags:
+  -h, --help   help for this command
+
+Use " [command] --help" for more information about a command.
+
+```
+
+### Config location
+```
+>strace -e openat ./binary/bingo print_current_config
+openat(AT_FDCWD, "/sys/kernel/mm/transparent_hugepage/hpage_pmd_size", O_RDONLY) = 3
+openat(AT_FDCWD, "/opt/bingo/config.yaml", O_RDONLY|O_CLOEXEC) = 6
+```
+### Logs location
+```
+strace -e openat ./binary/bingo run_server          
+openat(AT_FDCWD, "/sys/kernel/mm/transparent_hugepage/hpage_pmd_size", O_RDONLY) = 3
+--- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=32075, si_uid=1000} ---
+openat(AT_FDCWD, "/opt/bingo/config.yaml", O_RDONLY|O_CLOEXEC) = 6
+openat(AT_FDCWD, "/opt/bongo/logs/c863ac3e8e/main.log", O_WRONLY|O_CREAT|O_APPEND|O_CLOEXEC, 0666) = -1 ENOENT (No such file or directory)
+```
+
+### Port bind
+
+```
+ss -tnulp
+```
+
+### Non-root user
+
+```
+# ./binary/bingo print_current_config
+Didn't your mom teach you not to run anything incomprehensible from root?
+```
+
+</details>
+
+---
+
+### Known issues:
 
 - the app stops in a random way with success or fail exit code. 
 - two instances of the app stop in the same moment. 
@@ -21,56 +82,90 @@ Known issues:
 - unclear if it uses static port and static logs location
 - unclear if it uses evnironment variables
 
+### Building container
+
+- [Dockerfile](./build/Dockerfile) 
+- [How to run](./build/README.md).
+- [docker-compose](./build/docker-compose.yml) for local tests
+
+---
+
+## Environments
+
+Environments are placed in the folder [envs](./envs/). There are two environments `dev` and `prod` in this repo.
+
 ## Building infrastructure
 
-Infra config is defined as `config.yml`. It includes the following entities:
+Infrastructure described in`config.yaml`.
 
-- tower (jumphost)
+- [envs/dev/config.yaml](./envs/dev/config.yaml)
+- [envs/prod/config.yaml](./envs/prod/config.yaml)
+
+It includes the following entities:
+
+- bastion (jumphost)
 - monitoring
 - postgresql
 - bingo node group
 - nginx reverse proxy
 
-To apply run
+To apply it
+
+1. Configure `yc`
+2. run ./script/init.sh to create prerequisites and define env variables
+3. Select environment
 
 ```
-TF_VAR_env_folder=$(pwd)/envs/dev terraform -chdir=terraform apply
+export ENV=dev
+export TF_VAR_env_folder=$(pwd)/envs/${ENV}
+```
+4. Run terraform
 
+```
+terraform -chdir=terraform apply
 ```
 
 ## Nodes provisioning
 
-Nodes provisioning works using ansible. Ansible can work through bastion as ssh proxy which is defined as env variable ANSIBLE_SSH_COMMON_ARGS. Value of this variable is exported as output of terraform and can be exported to the current session with bash `eval` command.
+Nodes provisioning works using ansible. Ansible can work through ssh proxy which is defined as env variable ANSIBLE_SSH_COMMON_ARGS. Value of this variable is exposed as output of terraform and can be exported to the current session with bash `eval` command.
 
 ```
 eval $(terraform -chdir=terraform output -raw ANSIBLE_SSH_COMMON_ARGS)
 ```
 
-if you need ssh
-```
-ssh -A -J <username>@<BASTION_IP> <username>@<target_host>
-```
+And then run ansible-playbook
 
 ```
 ansible-playbook -i envs/dev/inventory.yaml ansible/playbook.yml
 ```
 
-## Pipeline
+For debugging use bastion
+```
+ssh -A -J <username>@<BASTION_IP> <username>@<target_host>
+```
 
-- create infrastructure with terraform
-  - bingo node groups
-  - postgresql host
-  - nginx host
-- create ansible inventory with terraform
-- generate required configs
-  - bingo config
-  - nginx configuration
-- provision hosts
-  - postgresql
-  - nginx
-  - bingo
+### postgresql provisioning
 
-### Regarding bingo healthcheck
+- copy bingo config
+- install postgresql with ansible
+- create bingo database
+- add some indices
+
+### nginx provisioning
+
+- create nginx cache dir
+- upload tls certificates
+- install nginx
+- generate and upload nginx config for bingo
+- restart bingo containers
+
+### bingo provisioning
+
+The app placed in docker image and run as docker-compose on Yandex COI nodes which are installed by terraform. Bingo configs are delivered later by ansible.
+
+- [docker-compose](./build/docker-compose.yml)
+
+### bingo healthcheck
 
 1. Added `HEALTHCHECK` to [Dockerfile](./build/Dockerfile)
 2. Found that docker and docker-compose don't kill unhealthy containers
@@ -78,22 +173,22 @@ ansible-playbook -i envs/dev/inventory.yaml ansible/playbook.yml
 
 NB: unsuccessfully tried to implement *active* healthcheck which would kill the process inside of container
 
-### Regarding database population
+### database population
 
 1. Found the key in bingo help `bingo prepare_db`
 2. Run it as an ansible task
 
-### Regarding slow queries
+### slow queries
 
 1. Added ssd disk for database location (got last 5GB from granted cloud)
 2. Reconfigured `shared_buffers` and `work_mem`
 3. Added indices on the database
 
-### Regarding /long_dummy
+### /long_dummy
 
 1. Configured cache settings for nginx
 
-### Regarding http3
+### http3
 
 1. Added domain bingo.qamo.ru
 2. Generated tls certificate
