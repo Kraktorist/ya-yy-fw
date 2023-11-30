@@ -81,15 +81,17 @@ Didn't your mom teach you not to run anything incomprehensible from root?
 
 ---
 
-### Known issues:
+### Building container
+
+Known issues:
 
 - the app stops in a random way with success or fail exit code. 
 - two instances of the app stop in the same moment. 
 - the app writes too many logs
-- unclear if it uses static port and static logs location
+- seems like it uses static port and static logs location
 - unclear if it uses evnironment variables
 
-### Building container
+The following Dockerfile has been created:
 
 - [Dockerfile](./build/Dockerfile) 
 - [How to run](./build/README.md).
@@ -99,16 +101,16 @@ Didn't your mom teach you not to run anything incomprehensible from root?
 
 ## Environments
 
-Environments are placed in the folder [envs](./envs/). There are two environments `dev` and `prod` in this repo.
+Environments are placed in the folder [envs](./envs/). There are two similar environments `dev` and `prod` in this repo. Just to prove that automated deploy works.
 
 ## Building infrastructure
 
-Infrastructure described in`config.yaml`.
+Infrastructure described in`config.yaml` of every environment.
 
 - [envs/dev/config.yaml](./envs/dev/config.yaml)
 - [envs/prod/config.yaml](./envs/prod/config.yaml)
 
-It includes the following entities:
+It includes multiple hosts:
 
 - bastion (jumphost)
 - monitoring
@@ -116,40 +118,24 @@ It includes the following entities:
 - bingo node group
 - nginx reverse proxy
 
-To apply it
+To deploy it
 
-1. Configure `yc`
-2. run ./script/init.sh to create prerequisites and define env variables
-3. Select environment
-
-```
-export ENV=dev
-export TF_VAR_env_folder=$(pwd)/envs/${ENV}
-```
-4. Run terraform
+1. Configure `yc`, install `awscli`.
+2. Run the command:
 
 ```
-terraform -chdir=terraform apply
+./install.sh apply dev # this will install dev environment
 ```
+
+For destroying environment use
+```
+./install.sh destroy dev # this will install dev environment
+```
+
 
 ## Nodes provisioning
 
-Nodes provisioning works using ansible. Ansible can work through ssh proxy which is defined as env variable ANSIBLE_SSH_COMMON_ARGS. Value of this variable is exposed as output of terraform and can be exported to the current session with bash `eval` command.
-
-```
-eval $(terraform -chdir=terraform output -raw ANSIBLE_SSH_COMMON_ARGS)
-```
-
-And then run ansible-playbook
-
-```
-ansible-playbook -i envs/dev/inventory.yaml ansible/playbook.yml
-```
-
-For debugging use bastion
-```
-ssh -A -J <username>@<BASTION_IP> <username>@<target_host>
-```
+Nodes provisioning works using ansible. Provisioning variables are located in `group_vars` folder.Ansible works through bastion as ssh proxy. 
 
 ### postgresql provisioning
 
@@ -243,8 +229,5 @@ xxx.xx.xx.xxx - - [29/Nov/2023:22:24:44 +0000] "GET / HTTP/3.0" 200 336 "-" "cur
 
 **TODO**
 
-
-- parametrize ansible playbooks
 - secure passwords
-- build deployment pipeline
 - work on monitoring
