@@ -10,6 +10,7 @@ We've got the following requirements for the app:
 - run as non-root
 - postgres as a database (connections string is needed)
 - initial migration is required (seems like it should be run only once to populate the database)
+- healthcheck endpoint `/ping`
 
 ---
 
