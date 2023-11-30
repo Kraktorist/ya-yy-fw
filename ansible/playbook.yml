@@ -3,7 +3,13 @@
 #     - import_tasks: configs/playbook.yml
 #   vars_files:
 #     -  "{{ lookup('ansible.builtin.env', 'env_folder', default=Undefined) }}/envs/dev/ansible.vars.yml"
-
+- name: Waiting Machines SSH
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Waiting For SSH connection
+      ansible.builtin.wait_for_connection:
+        timeout: 300
 - name: configs upload
   import_playbook: configs/playbook.yml
   vars:
