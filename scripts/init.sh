@@ -89,13 +89,21 @@ export AWS_SECRET_ACCESS_KEY=$(echo ${secret} | jq -r .secret)
 export AWS_REGION=ru-central1
 aws --endpoint-url=https://storage.yandexcloud.net s3 mb s3://${S3_TF_STATE}
 
-echo $(yellow "EXPORTED VALUES:")
-echo "export YC_ZONE=ru-central1-a"
-echo "export YC_CLOUD_ID=$(yc config get cloud-id)"
-echo "export YC_FOLDER_ID=$(yc config get folder-id)"
-echo "export YC_SERVICE_ACCOUNT_KEY_FILE=${KEY_FILE}"
-echo "export YC_STORAGE_ACCESS_KEY=${AWS_ACCESS_KEY_ID}"
-echo "export YC_STORAGE_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}"
-echo "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
-echo "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-echo "export S3_TF_STATE=${S3_TF_STATE}"
+# echo $(yellow "EXPORTED VALUES:")
+# echo "export YC_ZONE=ru-central1-a"
+# echo "export YC_CLOUD_ID=$(yc config get cloud-id)"
+# echo "export YC_FOLDER_ID=$(yc config get folder-id)"
+# echo "export YC_SERVICE_ACCOUNT_KEY_FILE=${KEY_FILE}"
+# echo "export YC_STORAGE_ACCESS_KEY=${AWS_ACCESS_KEY_ID}"
+# echo "export YC_STORAGE_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}"
+# echo "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+# echo "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+# echo "export S3_TF_STATE=${S3_TF_STATE}"
+
+export YC_ZONE=ru-central1-a
+export YC_CLOUD_ID=$(yc config get cloud-id)
+export YC_FOLDER_ID=$(yc config get folder-id)
+export YC_SERVICE_ACCOUNT_KEY_FILE=${KEY_FILE}
+export YC_STORAGE_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
+export YC_STORAGE_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}
+export S3_TF_STATE=${S3_TF_STATE}
