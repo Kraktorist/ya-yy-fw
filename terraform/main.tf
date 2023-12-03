@@ -114,6 +114,10 @@ resource "yandex_compute_instance_group" "group" {
     }
   }
 
+  load_balancer {
+    ignore_health_checks = true
+  }
+
   scale_policy {
     fixed_scale {
       size = each.value.node_count

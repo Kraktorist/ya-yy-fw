@@ -22,6 +22,7 @@ locals {
         group          = k1
         ansible_host             = v2.fqdn
         nat_address = try(v2.network_interface[0].nat_ip_address,null)
+        load_balancer_address = "${tolist(tolist(yandex_lb_network_load_balancer.lb[k1].listener)[0].external_address_spec)[0].address}:${tolist(yandex_lb_network_load_balancer.lb[k1].listener)[0].target_port}"
         ansible_user = local.config.instance_groups[k1].metadata.ssh-keys.username
         ansible_groups = local.config.instance_groups[k1].ansible_groups
       }
@@ -43,7 +44,18 @@ locals {
     }
   }
 
-  ansible_inventory = merge(local.ansible_inventory_for_instance_groups, local.ansible_inventory_for_instances)
+  ansible_lb_vars = {
+    all = {
+      vars = {
+        load_balancer_addresses: {
+          for entry in setproduct(distinct(flatten(values(local.hosts)[*].ansible_groups)), distinct(values(local.hosts)[*].load_balancer_address)):
+            entry[0] => entry[1]
+        }
+      }
+    }
+  }
+
+  ansible_inventory = merge(local.ansible_lb_vars,local.ansible_inventory_for_instance_groups, local.ansible_inventory_for_instances)
 
 }
 
