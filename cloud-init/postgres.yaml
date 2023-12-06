@@ -50,7 +50,7 @@ runcmd:
       CREATE INDEX IF NOT EXISTS idx_customer_id ON customers(id);
       CREATE INDEX IF NOT EXISTS idx_session_id ON sessions(id);
       CREATE INDEX IF NOT EXISTS idx_movie_id ON movies(id);
-    EOF    
+    EOF
 
     # nfs server configuration
     apt-get -y install nfs-kernel-server
