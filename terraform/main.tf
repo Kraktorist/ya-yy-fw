@@ -79,6 +79,7 @@ locals {
     ig_name => {
       docker-compose = coalescelist([for key, entry in instance_group.metadata : file(entry.file) if key == "docker-compose"], [null])[0]
       ssh-keys       = coalescelist([for key, entry in instance_group.metadata : "${entry.username}:${file(entry.file)}" if key == "ssh-keys"], [null])[0]
+      user-data = coalescelist([for key, entry in instance_group.metadata : file(entry.file) if key == "user-data"], [null])[0]
     }
   }
 }
@@ -148,6 +149,8 @@ resource "yandex_compute_instance" "instance" {
   name        = each.key
   platform_id = "standard-v2"
   zone = [for v in yandex_vpc_subnet.network : v.zone if each.value.network.subnet == v.name][0]
+
+  hostname = try(each.value.hostname, null)
 
   resources {
     cores         = each.value.resources.cores

@@ -1,0 +1,13 @@
+#cloud-config
+runcmd:
+  - |
+    conf_share=postgres.ru-central1.internal:/opt/nfs/configs
+    while ! mount.nfs ${conf_share} /mnt
+    do
+        sleep 10
+        echo "Waiting mount..."
+    done
+
+    mkdir -p /opt/bingo/
+    cp /mnt/config.yaml /opt/bingo/
+    umount /mnt

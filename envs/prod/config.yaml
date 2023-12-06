@@ -45,6 +45,8 @@ instance_groups:
       ssh-keys: 
         username: ubuntu
         file: ~/.ssh/id_rsa.pub
+      user-data:
+        file: ../cloud-init/bingo-node.yaml
     node_count: 2
     allocation_policy: ["ru-central1-b"]
     deploy_policy:
@@ -82,24 +84,26 @@ instances:
   #     ssh-keys: 
   #       username: ubuntu
   #       file: ~/.ssh/id_rsa.pub
-  # prod-postgresql:
-  #   ansible_groups:
-  #     - postgresql
-  #   family_id: ubuntu-2204-lts
-  #   resources:
-  #     cores: 2
-  #     core_fraction: 50
-  #     memory: 8 #Gb
-  #     disk_size: 30 #Gb
-  #     disk_type: "network-hdd"
-  #     secondary_disk_size: 2
-  #   network:
-  #     subnet: prod-bingo-subnet
-  #     nat: false
-  #   metadata: 
-  #     ssh-keys: 
-  #       username: ubuntu
-  #       file: ~/.ssh/id_rsa.pub    
+  prod-postgresql:
+    ansible_groups:
+      - postgresql
+    family_id: ubuntu-2204-lts
+    hostname: postgres
+    resources:
+      cores: 2
+      core_fraction: 50
+      memory: 8 #Gb
+      disk_size: 30 #Gb
+      disk_type: "network-hdd"
+    network:
+      subnet: prod-bingo-subnet
+      nat: false
+    metadata: 
+      ssh-keys: 
+        username: ubuntu
+        file: ~/.ssh/id_rsa.pub
+      user-data:
+        file: ../cloud-init/postgres.yaml  
   # monitoring:
   #   ansible_groups:
   #     - monitoring

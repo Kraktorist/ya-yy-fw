@@ -261,5 +261,12 @@ xxx.xx.xx.xxx - - [29/Nov/2023:22:24:44 +0000] "GET / HTTP/3.0" 200 336 "-" "cur
 
 **TODO**
 
-- secure passwords
-- work on monitoring
+- deploy and provisioning postgresql, generate bingo configuration file
+- deploy bingo instance group
+- provision instance group
+  - docker-compose
+  - ssh-keys
+  - copy bingo configuration file (mount.nfs + cp bingo conf)
+
+
+

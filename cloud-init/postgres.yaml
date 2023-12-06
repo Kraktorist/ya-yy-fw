@@ -1,0 +1,50 @@
+#cloud-config
+runcmd:
+  - |
+    nfs_share=/opt/nfs/configs
+    bingo_database=bingo
+    bingo_username=bingo
+    bingo_password=pass
+    student_email=qamo@yandex.ru
+
+    # postgres installation
+    apt-get update
+    apt install -y postgresql-12
+    echo "host all all 10.0.0.0/8 md5" >>/etc/postgresql/12/main/pg_hba.conf
+    echo "listen_addresses = '*'" >>/etc/postgresql/12/main/postgresql.conf
+    systemctl restart postgresql
+
+    # bingo user/database creation
+    sudo -u postgres psql postgres <<EOF
+      CREATE DATABASE ${bingo_database};
+      CREATE USER ${bingo_username} WITH ENCRYPTED PASSWORD '${bingo_password}';
+      GRANT ALL PRIVILEGES ON DATABASE ${bingo_database} TO ${bingo_username};
+    EOF
+    # bingo generate config
+    mkdir -p ${nfs_share} && chown nobody:nogroup ${nfs_share}
+    cat <<EOF >${nfs_share}/config.yaml
+    student_email: ${student_email}
+    postgres_cluster:
+      hosts:
+      - address: $(hostname -f)
+        port: 5432
+      user: ${bingo_username}
+      password: ${bingo_password}
+      db_name: ${bingo_database}
+      ssl_mode: disable
+      use_closest_node: false
+    EOF
+
+    # bingo install for import
+    mkdir -p /opt/bingo/
+    cp ${nfs_share}/config.yaml /opt/bingo/
+    wget -O /usr/bin/bingo https://storage.yandexcloud.net/final-homework/bingo && chmod +x /usr/bin/bingo
+    # Didn't your mom teach you not to run anything incomprehensible from root?
+    sudo -u ubuntu /usr/bin/bingo prepare_db
+
+    # nfs server configuration
+    apt-get -y install nfs-kernel-server
+    echo "${nfs_share} 10.0.0.0/8(ro,sync,no_subtree_check)" >> /etc/exports
+    systemctl --now enable nfs-kernel-server
+    exportfs -a
+
