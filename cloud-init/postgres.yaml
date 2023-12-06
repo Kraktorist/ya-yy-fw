@@ -42,6 +42,16 @@ runcmd:
     # Didn't your mom teach you not to run anything incomprehensible from root?
     sudo -u ubuntu /usr/bin/bingo prepare_db
 
+    # database tuning
+    sudo -u postgres psql postgres -d ${bingo_database} <<EOF
+      CREATE INDEX IF NOT EXISTS movies_year ON movies(year);
+      CREATE INDEX IF NOT EXISTS movies_name ON movies(name);
+      CREATE INDEX IF NOT EXISTS movies_name ON movies(year,name);
+      CREATE INDEX IF NOT EXISTS idx_customer_id ON customers(id);
+      CREATE INDEX IF NOT EXISTS idx_session_id ON sessions(id);
+      CREATE INDEX IF NOT EXISTS idx_movie_id ON movies(id);
+    EOF    
+
     # nfs server configuration
     apt-get -y install nfs-kernel-server
     echo "${nfs_share} 10.0.0.0/8(ro,sync,no_subtree_check)" >> /etc/exports

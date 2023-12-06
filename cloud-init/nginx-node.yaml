@@ -4,6 +4,7 @@ runcmd:
     #curl -H Metadata-Flavor:Google 169.254.169.254/computeMetadata/v1/instance/attributes/lb
     apt-get update
     apt install -y nginx
+    rm -rf /etc/nginx/default-sites/* && rm -rf /etc/nginx/conf.d/*
     cat <<EOF >/etc/nginx/conf.d/bingo.conf
       upstream bingo {
           server 158.160.134.71:8080;
@@ -15,24 +16,24 @@ runcmd:
           # listen 443 quic reuseport;
           # ssl_certificate     certs/bingo.crt;
           # ssl_certificate_key certs/bingo.key;
-          # location /long_dummy {
-          #     add_header Alt-Svc 'h3=":443"; ma=86400';
-          #     proxy_pass http://bingo;
-          #     proxy_cache bingo;
-          #     proxy_cache_valid 1m;
-          #     add_header X-Proxy-Cache $upstream_cache_status;
-          #     proxy_set_header Host $http_host;
-          #     proxy_set_header X-Real-IP $remote_addr;
-          #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          #     proxy_set_header X-Forwarded-Proto $scheme;
-          # }
+          location /long_dummy {
+              add_header Alt-Svc 'h3=":443"; ma=86400';
+              proxy_pass http://bingo;
+              proxy_cache bingo;
+              proxy_cache_valid 1m;
+              add_header X-Proxy-Cache \$upstream_cache_status;
+              proxy_set_header Host \$http_host;
+              proxy_set_header X-Real-IP \$remote_addr;
+              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$scheme;
+          }
           location / {
               add_header Alt-Svc 'h3=":443"; ma=86400';
               proxy_pass http://bingo;
-              proxy_set_header Host $http_host;
-              proxy_set_header X-Real-IP $remote_addr;
-              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Proto $scheme;
+              proxy_set_header Host \$http_host;
+              proxy_set_header X-Real-IP \$remote_addr;
+              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$scheme;
           }
       }
     EOF
