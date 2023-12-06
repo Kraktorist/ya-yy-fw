@@ -4,7 +4,7 @@ runcmd:
     #curl -H Metadata-Flavor:Google 169.254.169.254/computeMetadata/v1/instance/attributes/lb
     apt-get update
     apt install -y nginx
-    rm -rf /etc/nginx/default-sites/* && rm -rf /etc/nginx/conf.d/*
+    rm -rf /etc/nginx/sites-enabled/* && rm -rf /etc/nginx/conf.d/*
     cat <<EOF >/etc/nginx/conf.d/bingo.conf
       upstream bingo {
           server 158.160.134.71:8080;
