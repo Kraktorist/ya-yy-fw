@@ -2,6 +2,8 @@
 runcmd:
   - |
     #curl -H Metadata-Flavor:Google 169.254.169.254/computeMetadata/v1/instance/attributes/lb
+    # proxy cache folder creation
+    mkdir /opt/nginx_cache && chown nginx:nginx /opt/nginx_cache && chmod 770 /opt/nginx_cache
     apt-get update
     apt install -y nginx
     rm -rf /etc/nginx/sites-enabled/* && rm -rf /etc/nginx/conf.d/*
