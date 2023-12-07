@@ -14,6 +14,6 @@ output ANSIBLE_SSH_COMMON_ARGS {
 output lb_lb_endpoints {
   value = {
     for key, entry in yandex_lb_network_load_balancer.lb:
-      key => "${tolist(tolist(entry.listener)[0].external_address_spec)[0].address}:${tolist(entry.listener)[0].target_port}"
+      key => "${tolist(tolist(entry.listener)[0].internal_address_spec)[0].address}:${tolist(entry.listener)[0].port}"
   }
 }

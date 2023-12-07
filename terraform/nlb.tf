@@ -1,7 +1,7 @@
 resource "yandex_lb_network_load_balancer" "lb" {
   for_each           = try(local.config.instance_groups, {})
   name = "${each.key}-load-balancer"
-
+  type = "internal"
   labels = {
     group = each.value.ansible_groups[0]
   }
@@ -10,8 +10,12 @@ resource "yandex_lb_network_load_balancer" "lb" {
     name = each.key
     port = each.value.lb.port
     target_port = try(each.value.lb.target_port, each.value.lb.port)
-    external_address_spec {
+    # external_address_spec {
+    #   ip_version = "ipv4"
+    # }
+    internal_address_spec {
       ip_version = "ipv4"
+      subnet_id = [for v in yandex_vpc_subnet.network : v.id if each.value.network.subnet == v.name][0]
     }
   }
 

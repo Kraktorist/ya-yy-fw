@@ -22,7 +22,7 @@ locals {
         group          = k1
         ansible_host             = v2.fqdn
         nat_address = try(v2.network_interface[0].nat_ip_address,null)
-        load_balancer_address = "${tolist(tolist(yandex_lb_network_load_balancer.lb[k1].listener)[0].external_address_spec)[0].address}:${tolist(yandex_lb_network_load_balancer.lb[k1].listener)[0].target_port}"
+        load_balancer_address = "${tolist(tolist(yandex_lb_network_load_balancer.lb[k1].listener)[0].internal_address_spec)[0].address}:${tolist(yandex_lb_network_load_balancer.lb[k1].listener)[0].port}"
         ansible_user = local.config.instance_groups[k1].metadata.ssh-keys.username
         ansible_groups = local.config.instance_groups[k1].ansible_groups
       }
