@@ -12,27 +12,23 @@ runcmd:
           server 10.6.0.26:8080;
       }
       proxy_cache_path /opt/nginx_cache levels=1:2 keys_zone=bingo:15m max_size=1G;
-      limit_req_zone $request_uri zone=one:10m rate=120r/s;
-      limit_req zone=one;
-      limit_req_status 429;
-      limit_req_log_level info;
       server {
           listen 80;
           # listen 443 ssl;
           # listen 443 quic reuseport;
           # ssl_certificate     certs/bingo.crt;
           # ssl_certificate_key certs/bingo.key;
-    #      location /long_dummy {
-    #          add_header Alt-Svc 'h3=":443"; ma=86400';
-    #          proxy_pass http://bingo;
-    #          proxy_cache bingo;
-    #          proxy_cache_valid 1m;
-    #          add_header X-Proxy-Cache \$upstream_cache_status;
-    #          proxy_set_header Host \$http_host;
-    #          proxy_set_header X-Real-IP \$remote_addr;
-    #          proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    #          proxy_set_header X-Forwarded-Proto \$scheme;
-    #      }
+         location /long_dummy {
+             add_header Alt-Svc 'h3=":443"; ma=86400';
+             proxy_pass http://bingo;
+             proxy_cache bingo;
+             proxy_cache_valid 1m;
+             add_header X-Proxy-Cache \$upstream_cache_status;
+             proxy_set_header Host \$http_host;
+             proxy_set_header X-Real-IP \$remote_addr;
+             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+             proxy_set_header X-Forwarded-Proto \$scheme;
+         }
           location / {
               add_header Alt-Svc 'h3=":443"; ma=86400';
               proxy_pass http://bingo;
@@ -41,17 +37,68 @@ runcmd:
               proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
               proxy_set_header X-Forwarded-Proto \$scheme;
           }
-          location /operation {
-              add_header Alt-Svc 'h3=":443"; ma=86400';
-    #          limit_req zone=one nodelay;
-              proxy_pass http://bingo;
-              proxy_set_header Host \$http_host;
-              proxy_set_header X-Real-IP \$remote_addr;
-              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Proto \$scheme;
-          }
-
       }
     EOF
 
     systemctl reload nginx
+    #fluentd installation
+    curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-focal-fluent-package5-lts.sh | sh
+    usermod -aG adm _fluentd
+    fluent-gem install fluent-plugin-prometheus
+    cat <<EOF >/etc/fluent/fluentd.conf
+    <source>
+      @type prometheus
+    </source>
+
+    <source>
+        @type tail
+        <parse>
+          #@type nginx
+          #it's nginx with some regexp for API call to exclude GET params
+          @type regexp
+          expression /^(?<remote>[^ ]*) (?<host>[^ ]*) (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)[\/0-9]*?(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)"(?:\s+(?<http_x_forwarded_for>[^ ]+))?)?$/
+    time_format %d/%b/%Y:%H:%M:%S %z
+          types size:integer
+        </parse>
+        tag nginx
+        path /var/log/nginx/access.log
+        pos_file /tmp/fluent_nginx.pos
+    </source>
+
+    <filter nginx>
+      @type prometheus
+
+      <metric>
+        name bingo_size_bytes_total
+        type counter
+        desc bingo bytes 
+        key size
+      </metric>
+
+      <metric>
+        name bingo_request_status_code_total
+        type counter
+        desc bingo status code
+        <labels>
+          method \${method}
+          path \${path}
+          status_code \${code}
+        </labels>
+      </metric>
+
+      <metric>
+        name bingo_http_request_duration_seconds
+        type histogram
+        desc Histogram of the total time spent on receiving the response from the upstream server.
+        key urt
+        <labels>
+          method \${method}
+          path \${path}
+          code \${code}
+        </labels>
+      </metric>
+
+    </filter>
+
+    EOF
+    systemctl restart fluentd
