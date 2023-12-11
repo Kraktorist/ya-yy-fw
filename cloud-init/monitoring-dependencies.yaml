@@ -1,0 +1,38 @@
+#cloud-config
+runcmd:
+  - |
+    host=$(curl -H "Metadata-Flavor:Google" 169.254.169.254/computeMetadata/v1/instance/hostname)
+    mkdir -p /opt/monitoring
+    mkdir -p /opt/monitoring/grafana/datasources
+    mkdir -p /opt/monitoring/grafana/dashboards
+    mkdir -p /opt/monitoring/prometheus
+    cat<<EOF >/opt/monitoring/grafana/datasources/prometheus.yml
+    apiVersion: 1
+    deleteDatasources:
+      - name: Prometheus
+        orgId: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://${host}:9090
+      password:
+      user:
+      database:
+      basicAuth: false
+      basicAuthUser:
+      basicAuthPassword:
+      withCredentials:
+      isDefault: true
+      jsonData:
+        graphiteVersion: "1.1"
+        tlsAuth: false
+        tlsAuthWithCACert: false
+      secureJsonData:
+        tlsCACert: "..."
+        tlsClientCert: "..."
+        tlsClientKey: "..."
+      version: 1
+      editable: true   
+      cat<<EOF >/opt/monitoring/prometheus/prometheus.yml

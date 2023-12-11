@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    network_mode: "host"
+    ports: 
+      - "9090:9090"
+    configs:
+      - source: prometheus-config
+        target: /etc/prometheus/prometheus.yml
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    network_mode: "host"
+    ports:
+      - "3000:3000"
+    volumes:
+      - "/opt/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources"
+      - "/opt/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards"
+      - "/opt/monitoring/grafana/dashboard_files:/var/lib/grafana/dashboards"
+    depends_on: 
+      - prometheus
+configs:
+  prometheus-config:
+    file: /opt/monitoring/prometheus/prometheus.yml
