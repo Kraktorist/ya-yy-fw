@@ -49,6 +49,8 @@ runcmd:
       CREATE INDEX IF NOT EXISTS movies_year_name ON movies(year,name);
       CREATE INDEX IF NOT EXISTS idx_customer_id ON customers(id);
       CREATE INDEX IF NOT EXISTS idx_session_id ON sessions(id);
+      CREATE INDEX IF NOT EXISTS ON sessions(customer_id);
+      CREATE INDEX IF NOT EXISTS ON sessions(movie_id);
       CREATE INDEX IF NOT EXISTS idx_movie_id ON movies(id);
     EOF
 
