@@ -46,7 +46,7 @@ runcmd:
     sudo -u postgres psql postgres -d ${bingo_database} <<EOF
       CREATE INDEX IF NOT EXISTS movies_year ON movies(year);
       CREATE INDEX IF NOT EXISTS movies_name ON movies(name);
-      CREATE INDEX IF NOT EXISTS movies_name ON movies(year,name);
+      CREATE INDEX IF NOT EXISTS movies_year_name ON movies(year,name);
       CREATE INDEX IF NOT EXISTS idx_customer_id ON customers(id);
       CREATE INDEX IF NOT EXISTS idx_session_id ON sessions(id);
       CREATE INDEX IF NOT EXISTS idx_movie_id ON movies(id);
