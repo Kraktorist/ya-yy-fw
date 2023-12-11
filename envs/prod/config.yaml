@@ -106,17 +106,21 @@ instances:
         file: ~/.ssh/id_rsa.pub
       user-data:
         file: ../cloud-init/postgres.yaml  
-  # monitoring:
-  #   ansible_groups:
-  #     - monitoring
-  #   family_id: ubuntu-2204-lts
-  #   resources:
-  #     cores: 2
-  #     memory: 4 #Gb
-  #     disk_size: 100 #Gb
-  #   network:
-  #     subnet: prod-bingo-subnet
-  #   metadata: 
-  #     ssh-keys: 
-  #       username: ubuntu
-  #       file: ~/.ssh/id_rsa.pub
+  monitoring:
+    ansible_groups:
+      - monitoring
+    family_id: ubuntu-2204-lts
+    resources:
+      cores: 2
+      memory: 4 #Gb
+      disk_size: 100 #Gb
+    network:
+      subnet: prod-bingo-subnet
+    metadata: 
+      user-data:
+        file: ../cloud-init/monitoring-dependencies.yaml  
+      docker-compose: 
+        file: ../cloud-init/monitoring.yml #TODO think about it
+      ssh-keys: 
+        username: ubuntu
+        file: ~/.ssh/id_rsa.pub
