@@ -9,26 +9,30 @@ runcmd:
     rm -rf /etc/nginx/sites-enabled/* && rm -rf /etc/nginx/conf.d/*
     cat <<EOF >/etc/nginx/conf.d/bingo.conf
       upstream bingo {
-          server 158.160.134.71:8080;
+          server 10.6.0.26:8080;
       }
       proxy_cache_path /opt/nginx_cache levels=1:2 keys_zone=bingo:15m max_size=1G;
+      limit_req_zone $request_uri zone=one:10m rate=120r/s;
+      limit_req zone=one;
+      limit_req_status 429;
+      limit_req_log_level info;
       server {
           listen 80;
           # listen 443 ssl;
           # listen 443 quic reuseport;
           # ssl_certificate     certs/bingo.crt;
           # ssl_certificate_key certs/bingo.key;
-          location /long_dummy {
-              add_header Alt-Svc 'h3=":443"; ma=86400';
-              proxy_pass http://bingo;
-              proxy_cache bingo;
-              proxy_cache_valid 1m;
-              add_header X-Proxy-Cache \$upstream_cache_status;
-              proxy_set_header Host \$http_host;
-              proxy_set_header X-Real-IP \$remote_addr;
-              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Proto \$scheme;
-          }
+    #      location /long_dummy {
+    #          add_header Alt-Svc 'h3=":443"; ma=86400';
+    #          proxy_pass http://bingo;
+    #          proxy_cache bingo;
+    #          proxy_cache_valid 1m;
+    #          add_header X-Proxy-Cache \$upstream_cache_status;
+    #          proxy_set_header Host \$http_host;
+    #          proxy_set_header X-Real-IP \$remote_addr;
+    #          proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    #          proxy_set_header X-Forwarded-Proto \$scheme;
+    #      }
           location / {
               add_header Alt-Svc 'h3=":443"; ma=86400';
               proxy_pass http://bingo;
@@ -37,6 +41,16 @@ runcmd:
               proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
               proxy_set_header X-Forwarded-Proto \$scheme;
           }
+          location /operation {
+              add_header Alt-Svc 'h3=":443"; ma=86400';
+    #          limit_req zone=one nodelay;
+              proxy_pass http://bingo;
+              proxy_set_header Host \$http_host;
+              proxy_set_header X-Real-IP \$remote_addr;
+              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$scheme;
+          }
+
       }
     EOF
 
